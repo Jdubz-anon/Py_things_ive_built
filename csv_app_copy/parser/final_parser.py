@@ -92,17 +92,6 @@ class Parser3:
 						 if self.dict3 not in self.list_of_dicts:
 						 	self.list_of_dicts.append(self.dict3)
 
-## ent is shell.entry_var.get()
-## fields is list_creator.csv_reader
-parser = Parser3(ent)
-parser.parse()
-#print(parser.dict1)
-#print(parser.dict2)
-#print(parser.dict3)
-#print(parser.func_list)
-##print(parser.list_of_dicts)
-##print(parser.rangedict)
-
 
 
 

@@ -1,9 +1,10 @@
 import tkinter as tk
-from parser import parser3
+import parser.final_parser as fp
 from shells import shell
 from file_systemizer import file_systemizer as fsys
 from list_creature import create_list
 import os
+import subprocess
 class App(tk.Tk):
 	def __init__(self):
 		super().__init__()
@@ -72,16 +73,17 @@ class App(tk.Tk):
 	def create_list(self):
 		lc = create_list.ListCreator(entry_var=self.sh.entry_var.get(),
 									 file=self.fs.master_file)
+#		lc.creatin_da_list()
 #		print(lc.file)
 		return_data = lc.creatin_da_list()
-		for data in return_data:
+		for data in return_data[::-1]:
 			self.sh.big_box.insert('1.0', str(data) + '\n')
 		
 	 	
 		
 			
 	def peek(self):
-		pass
+		subprocess.run(['gedit', '{}'.format(self.fs.master_file)])
 			
 	def change_file(self):
 		pass
