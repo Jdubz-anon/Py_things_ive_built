@@ -2,121 +2,326 @@ import csv
 from collections import ChainMap
 import parser.final_parser as fp 
 import numpy as arr
+import pathlib
 
+#ent = 'list category State Year <1961'
+#ent = 'list category State Year 1960-1975 Data.Rates.Property.Burglary >2500'
 
-ent = 'list category State Data.Rates.Property.All 4000-4100'
-ent = 'list State alabama Year 1999-2015 category Data.Population'
-ent = 'list category State Data.Rates.Property.All 4000-4500'
 class ListCreator(fp.Parser3):
-		def __init__(self, entry_var, file, *args):
+		def __init__(self, entry_var, file_path, *args):
 			super().__init__(entry_var, *args)
-			self.entry_var = entry_var.split()
 			#master_file
-			self.file = file
-#			self.csv_file = None
-			
-			
+			self.file_path = file_path
+			self.range1 = None
+			self.range2 = None
+			self.range3 = None			
+		
+		
 		def creatin_da_list(self):
-			with open(self.file, mode='r') as csv_file:
-				csv_file = csv.DictReader(csv_file)
-				if self.split_input[-1] == 'cats':
-					return csv_file.fieldnames
-				elif self.split_input[-1] == 'catx':
-					data = []
-					count = 0
-					for row in csv_file:
-						count += 1
-						if count == 2:
-							for values in csv_file.fieldnames:
-								data.append(f'{values} : {row[values]}')
-					return data
-
-				if len(self.entry_var) >= 3:
+			with self.file_path.open() as fi:
+				csv_file = csv.DictReader(fi)
+				if len(self.split_input) == 2:
+					data = list()
+					if self.split_input[-1] == 'cats':
+						for names in csv_file.fieldnames:
+							data.append(names)
+						return data
+					
+					elif self.split_input[-1] == 'catx':
+						count = 0
+						data = list()
+						for row in csv_file:
+							count += 1
+							if count == 2:
+								for values in csv_file.fieldnames:
+									data.append(f"{values} :  {row[values]}")			
+						return data
+				
+				
+				if len(self.split_input) > 2:		
 					self.parse()
-					data = list()					
-					if self.rangedict:
-						
-						if len(self.list_of_dicts) == 2:
-							key_map = list(ChainMap(self.print_cat_dict,self.list_of_dicts[0],self.list_of_dicts[1],
-											self.rangedict[0]))
+					if len(self.rangedict) + len(self.list_of_dicts) == 3:
+						if len(self.rangedict) == 3:
 							
-							for row in csv_file:
-								for num in range(int(self.rangedict[0][key_map[0]][0]),
-								int(self.rangedict[0][key_map[0]][1]) + 1):
-									for val1 in self.list_of_dicts[0][key_map[2]]:
-										for val2 in self.list_of_dicts[1][key_map[1]]:
-											if all([ row[key_map[0]] == str(num),
-  											(row[key_map[2]].upper()  == val1.upper()) ,
-   												(row[key_map[1]].upper()  == val2.upper()) ,
-   												]):
-   												for cat in self.print_cat_dict[key_map[3]]:
-   													data.append(row[cat])						
+							data = list()
+							
+							key_map = list(ChainMap(self.print_cat_dict,self.rangedict[2], self.rangedict[1], self.rangedict[0]))
+							
+							self.range1 = arr.arange(float(self.rangedict[0][key_map[0]][0]) ,
+							float(self.rangedict[0][key_map[0]][1]) + 1,0.1).astype('f')
+							
+							self.range2 = arr.arange(float(self.rangedict[1][key_map[1]][0]), 
+							float(self.rangedict[1][key_map[1]][1]) + 1, 0.1).astype('f')
+							
+							self.range3 = arr.arange(float(self.rangedict[2][key_map[2]][0]), 
+							float(self.rangedict[2][key_map[2]][1]) + 1, 0.1).astype('f')
+
+							filter1 = filter(lambda row : float(row[key_map[0]]) in self.range1, csv_file )
+
+							filter2 = filter(lambda row: float(row[key_map[1]]) in self.range2, filter1)
+
+							filter3 = filter(lambda row: float(row[key_map[2]]) in self.range3, filter2)
+
+							for cats in self.print_cat_dict[key_map[3]]:
+								for rows in filter3:
+									data.append(rows[cats])
+							
 							return data
 						
-						elif len(self.list_of_dicts) == 1:
-							mapped_keys = list(ChainMap(self.print_cat_dict,self.list_of_dicts[0],self.rangedict[0]))
-							for row in csv_file:
-								for num in range(int(self.rangedict[0][mapped_keys[0]][0]), 
-									int(self.rangedict[0][mapped_keys[0]][1])+1):
-									for val in self.list_of_dicts[0][mapped_keys[1]]:
-										if all([row[mapped_keys[0]]==str(num),
-												row[mapped_keys[1]].upper() == val.upper()]):	
-											for cat in self.print_cat_dict[mapped_keys[2]]:
-												data.append(row[cat])
-							return data
-						
-						elif not self.list_of_dicts:
-							key_map = list(ChainMap(self.print_cat_dict,self.rangedict[0]))
-							for row in csv_file:
-								array = arr.arange(int(self.rangedict[0][key_map[0]][0]),
-													int(self.rangedict[0][key_map[0]][1]), 0.1)
-								converted_array = array.astype('f')
-#								for num in range(int(self.rangedict[0][key_map[0]][0]),
-#								int(self.rangedict[0][key_map[0]][1])+1):
-								if float(row[key_map[0]]) in converted_array:
-									for cat in self.print_cat_dict[key_map[1]]:
-										data.append((row[cat], row[key_map[0]]))
-#								data.append(row[key_map[0]])
+						elif all([   (len(self.rangedict) == 2),
+									(len(self.list_of_dicts) == 1)    ]):
+							
+							data = list()
 								
+							key_map = list(ChainMap(self.print_cat_dict, self.list_of_dicts[0], self.rangedict[1], self.rangedict[0]))
+
+							self.range1 = arr.arange(float(self.rangedict[0][key_map[0]][0]), 
+							float(self.rangedict[0][key_map[0]][1]) + 1, 0.1).astype('f')
+							
+							self.range2 = arr.arange(float(self.rangedict[1][key_map[1]][0]), 
+							float(self.rangedict[1][key_map[1]][1]) + 1, 0.1).astype('f')
+						    
+							filter1 = filter(lambda row: float(row[key_map[0]]) in self.range1, csv_file)
+
+							filter2 = filter(lambda row: float(row[key_map[1]]) in self.range2, filter1)
+						    
+							for val in self.list_of_dicts[0][key_map[2]]:
+								filter3 = filter(lambda row: 
+
+								any([row[key_map[2]].upper() == val.upper(),
+								float(row[key_map[2]]) > float(val[1:]) if '>' in val else None,
+								float(row[key_map[2]]) < float(val[1:]) if '<' in val else None
 								
+								]), filter2)
+
+							for cats in self.print_cat_dict[key_map[3]]:
+								for rows in filter3:
+									data.append(rows[cats])
+
 							return data
-							
-							
-#					else:
-#						if len(self.list_of_dicts) == 3:
-#							key_map = list(ChainMap(self.list_of_dicts[0],self.list_of_dicts[1],self.list_of_dicts[2],
-#							self.print_cat_dict))
-							
-							
-													
+							    
 
+						elif all([len(self.rangedict) == 1,
+								len(self.list_of_dicts) == 2]):
+							
+							data = list()
+							
+							key_map = list(ChainMap(self.print_cat_dict, self.list_of_dicts[1], self.list_of_dicts[0], self.rangedict[0]))
+							
+							self.range1 = arr.arange(   float(self.rangedict[0][key_map[0]][0]),
+														float(self.rangedict[0][key_map[0]][1]) + 1, 0.1     ).astype('f')
+							
+							filter1 = filter(lambda row: float(row[key_map[0]]) in self.range1, csv_file)
+							
+							for first_val in self.list_of_dicts[0][key_map[1]]:
+								filter2 = filter(lambda row: 
 
-#####do not erase under this line!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!########
-
-##				if len(self.entry_var) >= 3:
-##					self.parse()
-##					data = list()
-##					if self.rangedict:
-##						for row in csv_file:
-##							for dicts in self.rangedict:
-##								for key in dicts.keys(): #key for dict in rangedict
-##									for num in range(int(dicts[key][0]), int(dicts[key][1]) + 1):							
-##										for key1 in self.list_of_dicts[0].keys(): #key for dict in dict1
-##											for item in self.list_of_dicts[0][key1]:
-##												if row[key] == str(num) and row[key1].upper() == item.upper() if not item.isdigit() else item:
-##													for cats in self.print_cat_dict['category']:
-##														
-##														data.append(f'for match: {num}; {cats} match is {row[cats]}')
-##	#												data.append((key,num,key1,item,))
-##											
-##						return data
+								any([row[key_map[1]].upper() == first_val.upper(),
+								float(row[key_map[1]]) > float(first_val[1:]) if '>' in first_val else None,
+								float(row[key_map[1]]) < float(first_val[1:]) if '<' in first_val else None
+								
+								]), filter1)
 									
+							for second_val in self.list_of_dicts[1][key_map[2]]:
+								filter3 = filter(lambda row: 
+
+								any([row[key_map[2]].upper() == second_val.upper(),
+								float(row[key_map[2]]) > float(second_val[1:]) if '>' in second_val else None,
+								float(row[key_map[2]]) < float(second_val[1:]) if '<' in second_val else None
+								
+								]), filter2)
+								
+
+							for cats in self.print_cat_dict[key_map[3]]:
+								for row in filter3:
+									data.append(row[cats])
+
+							return data
+							
+
+						elif len(self.list_of_dicts) == 3:
+							
+							data = list()
+							
+							key_map = list(ChainMap(self.print_cat_dict, self.list_of_dicts[2], 
+							self.list_of_dicts[1], self.list_of_dicts[0]))
+							
+							for first_val in self.list_of_dicts[0][key_map[0]]:
+								filter1 = filter(lambda row: 
+
+								any([row[key_map[0]].upper() == first_val.upper(),
+								float(row[key_map[0]]) > float(first_val[1:]) if '>' in first_val else None,
+								float(row[key_map[0]]) < float(first_val[1:]) if '<' in first_val else None
+								
+								
+								]), csv_file)
+								
+							for second_val in self.list_of_dicts[1][key_map[1]]:
+								filter2 = filter(lambda row: 
+
+								any([row[key_map[1]].upper() == second_val.upper(),
+								float(row[key_map[1]]) > float(second_val[1:]) if '>' in second_val else None,
+								float(row[key_map[1]]) < float(second_val[1:]) if '<' in second_val else None
+								
+								
+								]), filter1)
+								 
+							for third_val in self.list_of_dicts[2][key_map[2]]:
+								filter3 = filter(lambda row: 
+
+								any([row[key_map[2]].upper() == third_val.upper(),
+								float(row[key_map[2]]) > float(third_val[1:]) if '>' in third_val else None,
+								float(row[key_map[2]]) < float(third_val[1:]) if '<' in third_val else None
+								
+								
+								]), filter2)
+								
+							for cats in self.print_cat_dict[key_map[3]]:
+								for row in filter3:
+									data.append(row[cats])
+
+							return data
+							
+					elif len(self.rangedict) + len(self.list_of_dicts) == 2:
+						if len(self.rangedict) == 2:
+							
+							data = list()
+							
+							key_map = list(ChainMap(self.print_cat_dict, self.rangedict[1], self.rangedict[0]))	
+							
+							self.range1 = arr.arange( float(self.rangedict[0][key_map[0]][0]),
+							float(self.rangedict[0][key_map[0]][1]) + 1, 0.1 ).astype('f')
+							
+							self.range2 = arr.arange( float(self.rangedict[1][key_map[1]][0]),
+							float(self.rangedict[1][key_map[1]][1]) + 1, 0.1 ).astype('f')
+							
+							filter1 = filter(lambda row: float(row[key_map[0]]) in self.range1, csv_file)
+							
+							filter2 = filter(lambda row: float(row[key_map[1]]) in self.range2, filter1)
+							
+							for cats in self.print_cat_dict[key_map[2]]:
+								for row in filter2:
+									data.append(row[cats])
+
+							return data
+								
+						elif all([len(self.rangedict) == 1,
+								len(self.list_of_dicts) == 1]):
+							
+							data = list()
+							
+							key_map = list(ChainMap(self.print_cat_dict, self.list_of_dicts[0], self.rangedict[0]))														
+							
+							self.range1 = arr.arange( float(self.rangedict[0][key_map[0]][0]),
+							float(self.rangedict[0][key_map[0]][1]) + 1, 0.1).astype('f')
+							
+							filter1 = filter(lambda row: float(row[key_map[0]]) in self.range1, csv_file)
+							
+							for first_val in self.list_of_dicts[0][key_map[1]]:
+								filter2 = filter(lambda row: 
+
+								any([row[key_map[1]].upper() == first_val.upper(),
+								float(row[key_map[1]]) > float(first_val[1:]) if '>' in first_val else None,
+								float(row[key_map[1]]) < float(first_val[1:]) if '<' in first_val else None
+								
+								
+								]), filter1)
+								
+							for cats in self.print_cat_dict[key_map[2]]:
+								for row in filter2:
+									data.append(row[cats])
+							print(data)
+							return data							
+														
+	#					
+						elif len(self.list_of_dicts) == 2:
+							
+							data = list()
+							
+							key_map = list(ChainMap(self.print_cat_dict, self.list_of_dicts[1], self.list_of_dicts[0]))
+							
+							for first_val in self.list_of_dicts[0][key_map[0]]:
+								filter1 = filter(lambda row: 
+
+								any([row[key_map[0]].upper() == first_val.upper(),
+								float(row[key_map[0]]) > float(first_val[1:]) if '>' in first_val else None,
+								float(row[key_map[0]]) < float(first_val[1:]) if '<' in first_val else None
+
+								
+								]), csv_file)
+								
+							for second_val in self.list_of_dicts[1][key_map[1]]:
+								filter2 = filter(lambda row: 
+
+								any([row[key_map[1]].upper() == second_val.upper(),
+								float(row[key_map[1]]) > float(second_val[1:]) if '>' in second_val else None,
+								float(row[key_map[1]]) < float(second_val[1:]) if '<' in second_val else None
+								
+								
+								]), filter1)
+								
+							for cats in self.print_cat_dict[key_map[2]]:
+								for row in filter2:
+									data.append(row[cats])
+
+							return data		
+							
+							
+					elif len(self.rangedict) + len(self.list_of_dicts) == 1:
+						if self.rangedict:
+							
+							data = list()
+							
+							key_map = list(ChainMap(self.print_cat_dict, self.rangedict[0]))														
+							
+							self.range1 = arr.arange( float(self.rangedict[0][key_map[0]][0]),
+							float(self.rangedict[0][key_map[0]][1]) + 1, 0.1 ).astype('f')
+
+							filter1 = filter(lambda row: float(row[key_map[0]]) in self.range1, csv_file)
+							
+							for cats in self.print_cat_dict[key_map[1]]:
+								for row in filter1:
+									data.append(row[cats])
+							
+							return data 
+							
+						elif self.list_of_dicts:
+															
+							data = list()
+							
+							key_map = list(ChainMap(self.print_cat_dict, self.list_of_dicts[0]))
+							
+							for first_val in self.list_of_dicts[0][key_map[0]]:
+								filter1 = filter(lambda row: 
+								
+								any( [row[key_map[0]].upper() == first_val.upper(),
+								float(row[key_map[0]]) > float(first_val[1:]) if '>' in first_val else None,
+								float(row[key_map[0]]) < float(first_val[1:]) if '<' in first_val else None 
+								                                   
+								                                   
+								 ]), csv_file)
+					
+							
+							for cats in self.print_cat_dict[key_map[1]]:
+								for row in filter1:
+									data.append(row[cats])
+							
+							return data
+							
+							
+
+
+
+#lc = ListCreator(entry_var=ent, file_path=pathlib.Path('/media/jdubzanon/SS/csv_files/state_crime.csv'))
+#lc.creatin_da_list()
+
+
+
+
 							
 						
 						
-#lc = ListCreator(entry_var=ent, file='/media/jdubzanon/SmallStorage/csv_files/state_crime.csv')
-#lc.creatin_da_list()							
-			
+
 			
 			
 			
