@@ -3,7 +3,7 @@ from collections import ChainMap
 
 
 
-#ent = 'list category State Data.Rates.Property.All 1000-2000 Year 1990-2000 Data.Rates.Property.Burglary 300-400'
+ent = 'list category Data.Rates.Property.All State alabama&new-york '
 #ent = "list category Data.Rates.Property.All State new-york Year 2000-2010 Data.Rates.Property.Burglary 355-400"
 #pass shell ent_var and csv_reader
 class Parser3:
@@ -26,17 +26,20 @@ class Parser3:
 			elif i % 2 != 0 and self.split_input[i] != 'category':
 				
 				if not self.dict1.keys():
-					self.dict1[self.split_input[i]] = [value.replace('-',' ') for value in self.split_input[i + 1].split('&')]	
-				
+					self.dict1[self.split_input[i].replace('-',' ')] = [value.replace('-',' ') for value in 
+					self.split_input[i + 1].split('&')]	
+
 				elif self.dict1.keys and not self.dict2.keys():
-					self.dict2[self.split_input[i]] = [value.replace('-',' ') for value in self.split_input[i + 1].split('&')] 
+					self.dict2[self.split_input[i].replace('-',' ')] = [value.replace('-',' ') for value in 
+					self.split_input[i + 1].split('&')] 
 				
 				else:
-					self.dict3[self.split_input[i]] = [value.replace('-',' ') for value in self.split_input[i + 1].split('&')]
+					self.dict3[self.split_input[i].replace('-',' ')] = [value.replace('-',' ') for value in 
+					self.split_input[i + 1].split('&')]
 
 			
 
-
+# check for ranges and organize arguments for futher use
 		key_map = list(ChainMap(self.dict3,self.dict2,self.dict1))
 		
 		if self.dict1.keys():
@@ -81,13 +84,14 @@ class Parser3:
 				if all([self.dict3 not in self.list_of_dicts, self.dict3 not in self.rangedict]):
 					self.list_of_dicts.append(self.dict3)
 
-				
+			
 #		print("dict1 : " ,self.dict1)
 #		print('dict2 : ' , self.dict2)
 #		print('dict3 : ', self.dict3)
-##		print(key_map)
-#		print(self.rangedict)
-#		print(self.list_of_dicts)
+####		print(key_map)
+###		print(self.rangedict)
+###		print(self.list_of_dicts)
+##		print(self.print_cat_dict)
 
 
 

@@ -19,7 +19,7 @@ class FileSystemizer:
 
 	def showme(self):
 		return subprocess.check_output(['find', '/media', '-type', 'd', '-name', '{}'.format(self.user_filename[1]), 
-																							'-exec', 'ls', '-l', '{}', ';'])
+																							'-exec', 'ls', '{}', ';'])
 		
 		
 		
