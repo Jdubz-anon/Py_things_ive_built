@@ -3,12 +3,8 @@ from collections import ChainMap
 import parser.final_parser as fp 
 import numpy as arr
 import pathlib
-#For test purposes########################################
-#ent = 'list category State Year <1961'
-#ent = 'list category Data.Rates.Property.Larceny State New-York Year >2015 '
-#ent = 'list category  State&Data.Rates.Property.Burglary Year 2018-2019'
-ent = 'list category State&Year Data.Rates.Property.Burglary >500 State New-York&Virginia Year >1970'
-###############################################################
+
+
 class ListCreator(fp.Parser3):
 		def __init__(self, entry_var, file_path, *args):
 			super().__init__(entry_var, *args)
@@ -142,7 +138,6 @@ class ListCreator(fp.Parser3):
 							
 							filter1 = filter(lambda row: float(row[key_map[0]]) in self.range1, csv_file)
 							
-							print(key_map)
 							for row in filter1:
 								for first_val in self.list_of_dicts[0][key_map[1]]:
 									for second_val in self.list_of_dicts[1][key_map[2]]:
@@ -312,7 +307,7 @@ class ListCreator(fp.Parser3):
 							data.clear()
 							return self.data							
 														
-####################################################################################################################################
+
 						elif len(self.list_of_dicts) == 2:
 							
 							data = list()
@@ -345,7 +340,7 @@ class ListCreator(fp.Parser3):
 														]):
 												
 											data.append(row)						
-#########################trying to free up memory##################################							
+
 							for row in data:
 								if len(self.print_cat_dict[key_map[2]]) > 4:
 									self.data.append('Max 4 Categories')
@@ -455,9 +450,5 @@ class ListCreator(fp.Parser3):
 						return self.data
 						
 						
-#lc = ListCreator(ent, file_path=pathlib.Path('/media/jdubzanon/SS/csv_files/crime_files/state_crime.csv'))
-#lc.creatin_da_list()
-#print(lc.data)
-#						
 							
 							

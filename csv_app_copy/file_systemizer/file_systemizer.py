@@ -21,12 +21,3 @@ class FileSystemizer:
 		return subprocess.check_output(['find', '/media', '-type', 'd', '-name', '{}'.format(self.user_filename[1]), 
 																							'-exec', 'ls', '{}', ';'])
 		
-		
-		
-		
-#fs = FileSystemizer('connect state_crime.csv')
-#fs.connect()
-#print(fs.master_file)
-#print(fs.master_file)
-#print(fs.sp)
-

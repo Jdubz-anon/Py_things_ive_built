@@ -1,11 +1,6 @@
 from collections import ChainMap
 
 
-
-
-ent = 'list category Data.Rates.Property.All State alabama&new-york '
-#ent = "list category Data.Rates.Property.All State new-york Year 2000-2010 Data.Rates.Property.Burglary 355-400"
-#pass shell ent_var and csv_reader
 class Parser3:
 	def __init__(self, inputs): 
 
@@ -85,25 +80,3 @@ class Parser3:
 					self.list_of_dicts.append(self.dict3)
 
 			
-#		print("dict1 : " ,self.dict1)
-#		print('dict2 : ' , self.dict2)
-#		print('dict3 : ', self.dict3)
-####		print(key_map)
-###		print(self.rangedict)
-###		print(self.list_of_dicts)
-##		print(self.print_cat_dict)
-
-
-
-
-
-
-#p = Parser3(ent)
-#p.parse()
-
-
-
-
-
-	
-

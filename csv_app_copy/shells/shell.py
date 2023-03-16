@@ -1,5 +1,3 @@
-
-
 import tkinter as tk
 from tkinter import ttk
 
@@ -54,7 +52,9 @@ class Shell(ttk.Frame):
 	def cmd_history_bind_func(self, event):
 		self.command_history.focus_set()
 		self.entry_var.set(self.command_history_list[self.command_history.current()])
-#		self.command_history_list.pop(self.command_history.current())
 		self.ent_widget.focus_set()
 		self.ent_widget.icursor(tk.END)
 		self.command_history.set('')
+		
+		
+		

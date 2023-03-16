@@ -1,7 +1,5 @@
 from collections import ChainMap
 import numpy as arr
-#ent = 'graph category Data.Rates.Property.All&Data.Rates.Property.Larceny&Data.Rates.Violent.Rape State Alabama Year 2000-2019'
-ent = 'graph category Data.Rates.Property.All&Data.Rates.Property.Larceny State Alabama&New-York Year 2000-2019'
 
 
 
@@ -48,8 +46,6 @@ class GraphParser:
 			for low_key in high_value.keys():
 				self.map_set.append((f'{high_key}\n{low_key}'))
 
-#go = GraphParser(ent)
-#print(go.map_set)
 		
 			
 									

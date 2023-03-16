@@ -2,10 +2,6 @@ from collections import ChainMap
 import csv
 from graph_parser.graph_parser import GraphParser
 
-ent = 'graph category Data.Rates.Property.All&Data.Rates.Property.Larceny State Alabama&New-York&New-Jersey Year 2009-2010'
-
-inp_file = '/media/jdubzanon/SS/csv_files/state_crime.csv'
-
 
 class GraphOrganizer(GraphParser):
 	def __init__(self, ent_var, file_inp, *args):
@@ -50,8 +46,3 @@ class GraphOrganizer(GraphParser):
 									self.full_mapped_dict[row[self.key_map[0]].upper()][low_key].append(float(row[key]))
 
 
-
-#go = GraphOrganizer(ent,inp_file)
-
-#print(go.range1)
-#print(go.full_mapped_dict)		

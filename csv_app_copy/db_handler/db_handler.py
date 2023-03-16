@@ -68,8 +68,6 @@ class DbHandler:
 		
 		return data if data else None
 			
-#db = DbHandler(entry_var='add myballs yourface')		
-#db.add_record()
 
 
 

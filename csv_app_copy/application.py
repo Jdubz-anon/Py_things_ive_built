@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import *
 import subprocess
-import matplotlib.pyplot as plt
 import webbrowser as wb
 import parser.final_parser as fp
 from shells import shell
@@ -106,7 +105,7 @@ class App(tk.Tk):
 		except AttributeError:
 			self.sh.big_box.insert('1.0', 'Need to connect to a file first!')
 	
-# 
+
 	def create_list(self):
 		self.organized_data.clear()
 		try:	
@@ -140,8 +139,6 @@ class App(tk.Tk):
 		except AttributeError:
 			self.sh.big_box.insert('1.0', 'No data to organize!')
 	
-	# graph category Date.Rates.Property.Rape State Alabama Year >1990
-	
 	def graph(self):
 		try:
 			try:
@@ -149,6 +146,9 @@ class App(tk.Tk):
 									file_inp=self.fs.master_file,root=self)					
 			except IndexError:
 				self.sh.big_box.insert('1.0', 'Bad Syntax, Try Again!')
+			except ValueError:
+				self.sh.big_box.insert('1.0', 'Are you trying to graph words?')
+		
 		except AttributeError:
 			self.sh.big_box.insert('1.0', 'Need to connect to a file first!')
 		
